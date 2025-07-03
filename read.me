@@ -1,0 +1,21 @@
+run mqtt-service
+--------------------------------
+# Start the services
+docker-compose up -d
+# Check if services are running
+docker-compose ps
+# View logs
+docker-compose logs -f
+
+test mqtt-service
+---------------------------------
+# Publish a test message
+mqtt pub -t 'sensors/device1/data' -h 'localhost' -m '{"deviceId":"device1","temperature":25.5,"humidity":60}'
+# Check the logs to see if the message was received
+docker-compose logs mqtt-service
+
+# Connect to the PostgreSQL database
+docker-compose exec postgres psql -U postgres -d iot_data
+
+# Inside PostgreSQL, query the data
+SELECT * FROM sensor_data;
