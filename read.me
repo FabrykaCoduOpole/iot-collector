@@ -2,8 +2,10 @@ run mqtt-service
 --------------------------------
 # Start the services
 docker-compose up -d
+
 # Check if services are running
 docker-compose ps
+
 # View logs
 docker-compose logs -f
 
@@ -18,4 +20,51 @@ docker-compose logs mqtt-service
 docker-compose exec postgres psql -U postgres -d iot_data
 
 # Inside PostgreSQL, query the data
+SELECT * FROM sensor_data;
+
+
+-----------------------------------
+
+# Zatrzymaj kontenery
+docker-compose down
+
+# Usuń wolumen PostgreSQL, aby wymusić ponowne utworzenie bazy danych
+docker volume rm zeatask_postgres_data
+
+# Uruchom kontenery
+docker-compose up -d
+
+-----------------------------------
+
+# Połącz się z bazą danych PostgreSQL
+docker-compose exec postgres psql -U postgres -d iot_data
+
+# W konsoli PostgreSQL wykonaj zapytanie
+\dt
+
+
+CREATE TABLE IF NOT EXISTS sensor_data (
+  id SERIAL PRIMARY KEY,
+  device_id VARCHAR(50) NOT NULL,
+  topic VARCHAR(100) NOT NULL,
+  data JSONB NOT NULL,
+  timestamp TIMESTAMP NOT NULL
+);
+
+CREATE INDEX idx_sensor_data_device_id ON sensor_data(device_id);
+CREATE INDEX idx_sensor_data_timestamp ON sensor_data(timestamp);
+
+
+------------------------------------
+
+# Wyślij testową wiadomość MQTT
+mqtt pub -t 'sensors/device1/data' -h 'localhost' -m '{"deviceId":"device1","temperature":25.5,"humidity":60}'
+
+# Sprawdź logi MQTT Service
+docker-compose logs mqtt-service
+
+# Połącz się z bazą danych PostgreSQL
+docker-compose exec postgres psql -U postgres -d iot_data
+
+# W konsoli PostgreSQL wykonaj zapytanie
 SELECT * FROM sensor_data;
