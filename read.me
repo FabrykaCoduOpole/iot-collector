@@ -68,3 +68,27 @@ docker-compose exec postgres psql -U postgres -d iot_data
 
 # W konsoli PostgreSQL wykonaj zapytanie
 SELECT * FROM sensor_data;
+
+
+------------------------------------
+
+┌─────────────────────────────────────────────────────────────────┐
+│                        IoT Data Collector System                │
+├─────────────────────────────────────────────────────────────────┤
+│  IoT Devices → MQTT Broker → API Gateway → Microservices       │
+│                     ↓                           ↓               │
+│               Message Queue              Database Layer          │
+│                     ↓                           ↓               │
+│            Monitoring & Observability    Data Processing        │
+└─────────────────────────────────────────────────────────────────┘
+
+
+| Component              | Local Version         | AWS Cloud Equivalent |
+| ---------------------- | --------------------- | -------------------- |
+| MQTT Broker            | Mosquitto (Docker)    | AWS IoT Core         |
+| REST API Backend       | Node.js / Python / Go | Same container       |
+| Database               | PostgreSQL / MongoDB (Docker)   | AWS RDS / DynamoDB   |
+| Monitoring             | Prometheus + Grafana  | Prometheus + Grafana |
+| Kubernetes             | minikube / kind       | AWS EKS              |
+| Infrastructure as Code | -                     | Terraform or AWS CDK |
+| CI/CD                  | Gi
