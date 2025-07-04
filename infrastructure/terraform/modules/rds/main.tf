@@ -39,7 +39,7 @@ resource "aws_security_group" "db" {
 resource "aws_db_instance" "main" {
   identifier             = "${var.project_name}-${var.environment}-db"
   engine                 = "postgres"
-  engine_version         = "15.4"
+  engine_version         = "13.21"  # Zmieniono na 14.8
   instance_class         = "db.t3.micro"
   allocated_storage      = 20
   max_allocated_storage  = 100
@@ -59,18 +59,4 @@ resource "aws_db_instance" "main" {
     Environment = var.environment
     Project     = var.project_name
   }
-}
-
-# Create a Kubernetes secret for database connection
-resource "kubernetes_secret" "db_credentials" {
-  metadata {
-    name      = "db-secret"
-    namespace = "default"
-  }
-
-  data = {
-    database-url = "postgres://${var.db_username}:${var.db_password}@${aws_db_instance.main.endpoint}/${var.db_name}"
-  }
-
-  depends_on = [var.eks_cluster_id]
 }

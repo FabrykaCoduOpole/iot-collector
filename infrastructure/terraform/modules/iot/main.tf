@@ -100,16 +100,16 @@ data "aws_iot_endpoint" "current" {
   endpoint_type = "iot:Data-ATS"
 }
 
-# Create a ConfigMap for IoT Core endpoint
-resource "kubernetes_config_map" "iot_config" {
-  metadata {
-    name      = "iot-config"
-    namespace = "default"
-  }
+# # Create a ConfigMap for IoT Core endpoint
+# resource "kubernetes_config_map" "iot_config" {
+#   metadata {
+#     name      = "iot-config"
+#     namespace = "default"
+#   }
 
-  data = {
-    iot-endpoint = data.aws_iot_endpoint.current.endpoint_address
-  }
+#   data = {
+#     iot-endpoint = data.aws_iot_endpoint.current.endpoint_address
+#   }
 
-  depends_on = [var.eks_cluster_id]
-}
+#   depends_on = [var.eks_cluster_id]
+# }
