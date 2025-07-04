@@ -76,3 +76,20 @@ output "docker_login_command" {
   description = "Command to authenticate Docker with ECR"
   value       = "aws ecr get-login-password --region ${var.aws_region} | docker login --username AWS --password-stdin ${split("/", module.ecr.mqtt_service_repository_url)[0]}"
 }
+
+
+output "db_username" {
+  description = "Database username"
+  value       = var.db_username
+}
+
+output "db_password" {
+  description = "Database password"
+  value       = var.db_password
+  sensitive   = true
+}
+
+output "db_name" {
+  description = "Database name"
+  value       = var.db_name
+}

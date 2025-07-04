@@ -11,3 +11,6 @@ infrastructure/terraform/environments/dev/.terraform/providers/registry.terrafor
 infrastructure/terraform/environments/dev/.terraform/providers/registry.terraform.io/hashicorp/helm/2.17.0/darwin_arm64/LICENSE.txt
 infrastructure/terraform/environments/dev/.terraform/terraform.tfstate
 infrastructure/terraform/.remote-state-setup
+infrastructure/terraform/environments/dev/aws-iam-authenticator
+AWSCLIV2.pkg
+AWSCLIV2.pkg
