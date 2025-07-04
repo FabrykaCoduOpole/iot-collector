@@ -39,3 +39,9 @@ variable "db_password" {
   type        = string
   sensitive   = true
 }
+
+variable "mqtt_service_url" {
+  description = "URL of the MQTT service"
+  type        = string
+  default     = "https://example.com/mqtt"  # This will be updated later with the actual URL
+}

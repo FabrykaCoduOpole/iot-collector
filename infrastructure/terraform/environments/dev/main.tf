@@ -8,14 +8,19 @@ terraform {
       source  = "hashicorp/kubernetes"
       version = "~> 2.23"
     }
+    helm = {
+      source  = "hashicorp/helm"
+      version = "~> 2.11"
+    }
   }
   
-  # Uncomment this block if you want to use Terraform Cloud or S3 backend
-  # backend "s3" {
-  #   bucket = "iot-collector-terraform-state"
-  #   key    = "dev/terraform.tfstate"
-  #   region = "us-east-1"
-  # }
+  backend "s3" {
+    bucket         = "iot-collector-terraform-state"
+    key            = "dev/terraform.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "iot-collector-terraform-locks"
+    encrypt        = true
+  }
 }
 
 provider "aws" {
@@ -56,6 +61,24 @@ module "rds" {
   db_password     = var.db_password
 }
 
+# Import IoT Core module
+module "iot" {
+  source = "../../modules/iot"
+  
+  environment     = var.environment
+  project_name    = var.project_name
+  mqtt_service_url = var.mqtt_service_url
+  eks_cluster_id  = module.eks.cluster_name
+}
+
+# Import ECR module
+module "ecr" {
+  source = "../../modules/ecr"
+  
+  environment  = var.environment
+  project_name = var.project_name
+}
+
 # Configure kubectl provider
 provider "kubernetes" {
   host                   = module.eks.cluster_endpoint
@@ -65,5 +88,19 @@ provider "kubernetes" {
     api_version = "client.authentication.k8s.io/v1beta1"
     command     = "aws"
     args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
+  }
+}
+
+# Configure Helm provider
+provider "helm" {
+  kubernetes {
+    host                   = module.eks.cluster_endpoint
+    cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
+    
+    exec {
+      api_version = "client.authentication.k8s.io/v1beta1"
+      command     = "aws"
+      args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
+    }
   }
 }
