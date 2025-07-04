@@ -22,4 +22,20 @@ variable "vpc_cidr" {
   default     = "10.0.0.0/16"
 }
 
-# Database credentials will be added in a later step
+variable "db_name" {
+  description = "Database name"
+  type        = string
+  default     = "iot_data"
+}
+
+variable "db_username" {
+  description = "Database username"
+  type        = string
+  default     = "postgres"
+}
+
+variable "db_password" {
+  description = "Database password"
+  type        = string
+  sensitive   = true
+}

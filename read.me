@@ -92,3 +92,45 @@ SELECT * FROM sensor_data;
 | Kubernetes             | minikube / kind       | AWS EKS              |
 | Infrastructure as Code | -                     | Terraform or AWS CDK |
 | CI/CD                  | Gi
+
+
+------------------------------------------------------------------------
+IAC
+
+The VPC module we've created will provide:
+
+A VPC with DNS support enabled
+2 public subnets (for load balancers and public-facing resources)
+2 private subnets (for EKS nodes and application components)
+2 database subnets (for RDS PostgreSQL)
+An Internet Gateway for public internet access
+A NAT Gateway for private subnets to access the internet
+Appropriate route tables and associations
+
+
+
+------------------------------------------------------------------------
+In the next steps, we'll add modules for:
+EKS (Kubernetes cluster)
+RDS (PostgreSQL database)
+IoT Core (MQTT broker)
+ECR (Container repositories)
+Monitoring with Prometheus and Grafana
+
+
+-----------------------------------------------------------------------------
+
+AWS infrastructure for your IoT Data Collector system. In this step, we have:
+
+Created the EKS module to establish the Kubernetes cluster
+Set up IAM roles and policies for the EKS cluster and node group
+Configured security groups for the EKS cluster and nodes
+Updated the main configuration to include the EKS module
+Added outputs for the EKS cluster
+The EKS module we've created will provide:
+
+An EKS cluster running Kubernetes version 1.28
+A node group with 2 t3.medium instances (scalable from 1 to 5)
+IAM roles and policies for the EKS cluster and node group
+Security groups for the EKS cluster and nodes
+Both private and public endpoint access for the EKS API server

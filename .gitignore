@@ -2,3 +2,7 @@ node_modules
 .env
 .DS_Store
 tmp
+infrastructure/terraform/environments/dev/.terraform/modules/modules.json
+infrastructure/terraform/environments/dev/.terraform.lock.hcl
+infrastructure/terraform/environments/dev/.terraform/providers/registry.terraform.io/hashicorp/aws/5.100.0/darwin_arm64/LICENSE.txt
+infrastructure/terraform/environments/dev/.terraform/providers/registry.terraform.io/hashicorp/aws/5.100.0/darwin_arm64/terraform-provider-aws_v5.100.0_x5
