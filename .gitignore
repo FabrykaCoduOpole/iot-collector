@@ -14,3 +14,5 @@ infrastructure/terraform/.remote-state-setup
 infrastructure/terraform/environments/dev/aws-iam-authenticator
 AWSCLIV2.pkg
 AWSCLIV2.pkg
+Zea.Test.Back/.venv
+Zea.Test.Back/certs

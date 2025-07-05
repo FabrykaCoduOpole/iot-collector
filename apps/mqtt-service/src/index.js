@@ -3,6 +3,7 @@ const mqtt = require('mqtt');
 const express = require('express');
 const { Pool } = require('pg');
 const client = require('prom-client');
+const fs = require('fs');
 
 // Prometheus metrics
 const messageCounter = new client.Counter({
@@ -20,15 +21,34 @@ const pool = new Pool({
 });
 
 // MQTT Client setup
-const mqttClient = mqtt.connect(process.env.MQTT_BROKER_URL || 'mqtt://localhost:1883');
+console.log('Connecting to MQTT broker:', process.env.MQTT_BROKER_URL);
+
+// For AWS IoT Core, we need to use WebSocket
+const mqttOptions = {
+  clientId: process.env.MQTT_CLIENT_ID || `mqtt-service-${Math.random().toString(16).slice(2, 8)}`,
+  clean: true,
+  connectTimeout: 4000,
+  reconnectPeriod: 1000,
+  protocol: 'wss', // Use WebSocket Secure
+};
+
+// Connect to AWS IoT Core using WebSocket
+const mqttClient = mqtt.connect(`wss://${process.env.MQTT_BROKER_URL.replace('mqtts://', '').replace(':8883', '/mqtt')}`, mqttOptions);
 
 mqttClient.on('connect', () => {
   console.log('Connected to MQTT broker');
-  mqttClient.subscribe('sensors/+/data'); // Subscribe to sensor data
+  const topic = process.env.MQTT_TOPIC || 'sensors/+/data';
+  console.log(`Subscribing to topic: ${topic}`);
+  mqttClient.subscribe(topic);
+});
+
+mqttClient.on('error', (error) => {
+  console.error('MQTT connection error:', error);
 });
 
 mqttClient.on('message', async (topic, message) => {
   try {
+    console.log(`Received message on topic ${topic}: ${message.toString()}`);
     const data = JSON.parse(message.toString());
     
     // Update metrics
@@ -54,7 +74,11 @@ app.get('/metrics', async (req, res) => {
 
 // Health check
 app.get('/health', (req, res) => {
-  res.json({ status: 'healthy', timestamp: new Date().toISOString() });
+  res.json({ 
+    status: 'healthy', 
+    timestamp: new Date().toISOString(),
+    mqtt: mqttClient.connected ? 'connected' : 'disconnected'
+  });
 });
 
 app.listen(port, () => {

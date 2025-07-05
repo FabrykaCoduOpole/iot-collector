@@ -1,3 +1,15 @@
+🔧 Implementation Steps
+Setup local development environment
+Create microservices (MQTT service, API Gateway)
+Add monitoring with Prometheus/Grafana
+Containerize applications
+Setup Kubernetes manifests
+Create Terraform infrastructure
+Implement CI/CD pipeline
+Deploy to AWS EKS
+
+
+
 run mqtt-service
 --------------------------------
 # Start the services
@@ -134,3 +146,14 @@ A node group with 2 t3.medium instances (scalable from 1 to 5)
 IAM roles and policies for the EKS cluster and node group
 Security groups for the EKS cluster and nodes
 Both private and public endpoint access for the EKS API server
+
+
+
+
+DB_USERNAME: postgres
+DB_PASSWORD: your-secure-password
+RDS_ENDPOINT: iot-collector-dev-db.cq2loiugs1cc.us-east-1.rds.amazonaws.com
+DB_NAME: iot_data
+
+kubectl exec -it postgres-client -- /bin/bash
+psql "postgres://postgres:your-secure-password@iot-collector-dev-db.cq2loiugs1cc.us-east-1.rds.amazonaws.com:5432/iot_data"
