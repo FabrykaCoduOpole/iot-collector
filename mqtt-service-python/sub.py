@@ -114,14 +114,14 @@ if __name__ == '__main__':
 
 
 
-    """
-    To run this: 
-        python3 sub.py \
-        --endpoint a2s082f26l8xct-ats.iot.us-east-1.amazonaws.com \
-        --ca_file certs/root-CA.crt \
-        --cert certs/iot-collector-dev-sample-sensor.cert.pem \
-        --key certs/iot-collector-dev-sample-sensor.private.key \
-        --client_id basicPubSub \
-        --topic sdk/test/python \
-        --count 0
-    """
+"""
+To run, use this: 
+    python3 sub.py \
+    --endpoint a2s082f26l8xct-ats.iot.us-east-1.amazonaws.com \
+    --ca_file certs/root-CA.crt \
+    --cert certs/iot-collector-dev-sample-sensor.cert.pem \
+    --key certs/iot-collector-dev-sample-sensor.private.key \
+    --client_id basicPubSub \
+    --topic sdk/test/python \
+    --count 0
+"""
