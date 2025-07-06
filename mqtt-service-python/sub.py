@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 import psycopg2
 from psycopg2.extras import Json
 from flask import Flask, jsonify, Response
-from prometheus_client import Counter, generate_latest, CONTENT_TYPE_LATEST
+from prometheus_client import Counter, Gauge, generate_latest, CONTENT_TYPE_LATEST
 from utils.command_line_utils import CommandLineUtils
 import socket
 
@@ -27,6 +27,22 @@ message_counter = Counter(
     'Total MQTT messages received',
     ['topic', 'device_id']
 )
+
+# Dodatkowe metryki Prometheus
+temperature_gauge = Gauge('iot_device_temperature_celsius', 'Current temperature reported by device', ['device_id'])
+humidity_gauge = Gauge('iot_device_humidity_percent', 'Current humidity reported by device', ['device_id'])
+last_seen_timestamp = Gauge('iot_device_last_seen_timestamp', 'Unix timestamp of last received message', ['device_id'])
+salmon_stress_index = Gauge('salmon_stress_index', 'Stress index for salmon based on temperature and humidity', ['device_id'])
+
+# Funkcja do obliczania indeksu stresu łososia
+def calculate_salmon_stress(temperature, humidity):
+    """
+    Przykładowa formuła: zakładamy, że stres rośnie powyżej 18°C i wilgotności powyżej 50%
+    """
+    temp_factor = max(0, (temperature - 18) / 10)   # 0–1 w zakresie 18–28°C
+    humidity_factor = max(0, (humidity - 50) / 50)  # 0–1 w zakresie 50–100%
+    stress = (temp_factor + humidity_factor) / 2    # prosty uśredniony indeks
+    return round(min(stress, 1.0), 2)
 
 # Konfiguracja bazy danych
 db_url = os.getenv('DATABASE_URL')
@@ -119,6 +135,23 @@ def save_message_to_db(topic, payload_str):
         
         # Aktualizacja metryk Prometheus
         message_counter.labels(topic=topic, device_id=device_id).inc()
+        
+        # Aktualizacja metryk dla temperatury i wilgotności
+        if 'temperature' in payload:
+            temperature = float(payload['temperature'])
+            temperature_gauge.labels(device_id=device_id).set(temperature)
+            
+        if 'humidity' in payload:
+            humidity = float(payload['humidity'])
+            humidity_gauge.labels(device_id=device_id).set(humidity)
+        
+        # Aktualizacja czasu ostatniego widzenia urządzenia
+        last_seen_timestamp.labels(device_id=device_id).set(int(time.time()))
+        
+        # Obliczanie i aktualizacja indeksu stresu łososia
+        if 'temperature' in payload and 'humidity' in payload:
+            stress = calculate_salmon_stress(float(payload['temperature']), float(payload['humidity']))
+            salmon_stress_index.labels(device_id=device_id).set(stress)
         
         # Zapisanie do bazy danych
         if db_available:
