@@ -11,30 +11,19 @@ This project implements a scalable, secure microservice-based IoT Data Collector
 ```
 +----------------+     +----------------+     +----------------+
 |                |     |                |     |                |
-|  IoT Devices   +---->+  MQTT Broker   +---->+  Data Service  |
+|  IoT Devices   +---->+  AWS IOT Core  +---->+  mqtt-service  |
 |                |     |                |     |                |
 +----------------+     +----------------+     +-------+--------+
                                                      |
                                                      v
-+----------------+     +----------------+     +----------------+
++----------------+     +----------------+     +----------------+      +--------+
 |                |     |                |     |                |
-|    Grafana     |<----+   Prometheus   |<----+   Database    |
+|    Grafana     |<----+   Prometheus   |<----+   Database     +---->  api gateway
 |                |     |                |     |                |
 +----------------+     +----------------+     +----------------+
 ```
 
 ### Components
-
-#### Local Environment
-
-| Component | Technology |
-|-----------|------------|
-| MQTT Broker | Mosquitto (Docker) |
-| REST API Backend | Node.js |
-| Database | MongoDB/PostgreSQL |
-| Monitoring | Prometheus + Grafana |
-| Kubernetes | minikube / kind |
-| CI/CD | GitHub Actions |
 
 #### AWS Cloud Environment
 
@@ -52,7 +41,7 @@ This project implements a scalable, secure microservice-based IoT Data Collector
 
 ### Prerequisites
 
-- Docker and Docker Compose
+- Docker
 - Kubernetes CLI (kubectl)
 - minikube or kind (for local deployment)
 - AWS CLI (for cloud deployment)
