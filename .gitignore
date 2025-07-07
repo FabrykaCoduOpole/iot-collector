@@ -20,3 +20,5 @@ readforme.me
 
 terraform.tfvars
 infrastructure/terraform/environments/dev/terraform.tfvars
+monitoring/install-prometheus-operator.sh
+monitoring/import-dashboards.sh
