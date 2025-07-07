@@ -68,13 +68,35 @@ This diagram illustrates the **AWS network architecture** of the `iot-collector-
 - IoT communication is secured using AWS IoT policies in written in terraform and certificates stored in EKS secrets.
 
 
+Our current cloud-native infrastructure for the IoT data platform demonstrates a strong security posture built on several best practices across networking, identity, data handling, and containerization. Below is a summary of the key components:
+
+## Network Security
+- VPC Architecture isstructured with public, private, and database subnet separation. EKS nodes are shielded in private subnets; databases are further isolated.
+- Security Groups follow the principle of least privilege, with tight ingress rules and specific allowances (e.g., only EKS nodes can access PostgreSQL on port 5432).
+- Routing and Access are controlled via NAT Gateways and Internet Gateways properly restricted to public subnets, ensuring secure outbound traffic from private environments.
+
+## Identity & Access Management
+- IAM Roles are scoped with minimal privileges — both cluster and node roles use necessary AWS-managed policies.
+- Kubernetes-AWS integration is securely configured through IAM authentication, preventing unauthorized cross-service access.
+
+## Data & Secrets Security
+- RDS Databases are located in private subnets, with encrypted connections enabled, daily backups configured.
+- IoT Security is implemented via certificate-based device authentication and strict MQTT topic permissions.
+
+## Container Security
+- Minimal Base Images (`python:3.9-slim`, `node:18-alpine`) reduce the attack surface.
+- Image Scanning is enabled in ECR.
+- Readiness Probes & Health Checks are configured for API Gateway and MQTT services.
+- Metrics endpoints and `/health` checks support observability and uptime monitoring.
+
+## Infrastructure & State Management
+- Terraform State is secured in encrypted S3 buckets with locking via DynamoDB to prevent drift or accidental changes.
+- Certificates & Secrets are managed as Kubernetes Secrets and mounted securely in containers as read-only volumes.
+
+
 ## Security Considerations
 
-- **Network Security**: All services are deployed within private subnets with controlled access through security groups
-- **Authentication**: MQTT broker requires client authentication
-- **Authorization**: IAM roles for service-to-service communication
-- **Data Encryption**: TLS for in-transit encryption, KMS for at-rest encryption
-- **Secrets Management**: AWS Secrets Manager for credentials
+
 
 ## Monitoring and Observability
 
