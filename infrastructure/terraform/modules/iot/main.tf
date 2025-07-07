@@ -14,45 +14,50 @@ resource "aws_iot_policy" "sensor_policy" {
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "iot:Connect"
-        ]
-        Resource = [
-          "arn:aws:iot:*:*:client/${aws_iot_thing_type.sensor.name}*"
-        ]
-      },
-      {
-        Effect = "Allow"
-        Action = [
-          "iot:Publish"
-        ]
-        Resource = [
-          "arn:aws:iot:*:*:topic/sensors/*/data"
-        ]
-      },
-      {
-        Effect = "Allow"
-        Action = [
-          "iot:Subscribe"
-        ]
-        Resource = [
-          "arn:aws:iot:*:*:topicfilter/sensors/*/data"
-        ]
-      },
-      {
-        Effect = "Allow"
-        Action = [
-          "iot:Receive"
-        ]
-        Resource = [
-          "arn:aws:iot:*:*:topic/sensors/*/data"
-        ]
-      }
+    {
+    Effect = "Allow"
+    Action = [
+    "iot:Connect"
+    ]
+    Resource = [
+    "arn:aws:iot:*:*:client/${aws_iot_thing_type.sensor.name}*"
+    ]
+    },
+    {
+    Effect = "Allow"
+    Action = [
+    "iot:Publish"
+    ]
+    Resource = [
+    "arn:aws:iot:*:*:topic/sensors/*/data",
+    "arn:aws:iot:*:*:topic/sdk/test/python"
+    ]
+    },
+    {
+    Effect = "Allow"
+    Action = [
+    "iot:Subscribe"
+    ]
+    Resource = [
+    "arn:aws:iot:*:*:topicfilter/sensors/*/data",
+    "arn:aws:iot:*:*:topicfilter/sdk/test/python"
+    ]
+    },
+    {
+    Effect = "Allow"
+    Action = [
+    "iot:Receive"
+    ]
+    Resource = [
+    "arn:aws:iot:*:*:topic/sensors/*/data",
+    "arn:aws:iot:*:*:topic/sdk/test/python"
+    ]
+    }
     ]
   })
 }
+
+# // ... rest of code remains same
 
 # Create a sample IoT thing for testing
 resource "aws_iot_thing" "sample_sensor" {
@@ -65,7 +70,6 @@ resource "aws_iot_thing" "sample_sensor" {
   }
 }
 
-# Create a certificate for the sample sensor
 resource "aws_iot_certificate" "sample_sensor" {
   active = true
 }
