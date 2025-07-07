@@ -95,8 +95,6 @@ Our current cloud-native infrastructure for the IoT data platform demonstrates a
 - Certificates & Secrets are managed as Kubernetes Secrets and mounted securely in containers as read-only volumes.
 
 
-
-
 ## Monitoring and Observability
 
 
