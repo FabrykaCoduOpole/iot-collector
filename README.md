@@ -6,11 +6,11 @@ This project implements a scalable, secure microservice-based IoT Data Collector
 # Architecture diagrams
 ![AWS IoT Collector Architecture](./docs/arch.jpg)
 
-## Overview
+### Overview
 This diagram illustrates the **AWS network architecture** of the `iot-collector-dev` environment deployed in the `us-east-1` region. The infrastructure is built to collect, process, and store IoT data using AWS IoT Core, Amazon EKS, and Amazon RDS PostgreSQL.
 
 ---
-## VPC Layout
+### VPC Layout
 - **VPC CIDR:** `10.0.0.0/16`
 - **Region:** `us-east-1`
 - **Availability Zones:**
@@ -18,7 +18,7 @@ This diagram illustrates the **AWS network architecture** of the `iot-collector-
   - `us-east-1b`
 ---
 
-## 🌐 Subnets & NAT
+### 🌐 Subnets & NAT
 | Subnet Name                  | CIDR Block     | AZ         | Purpose                        |
 |-----------------------------|----------------|------------|--------------------------------|
 | `iot-collector-dev-public-1`  | `10.0.0.0/24`   | us-east-1a | NAT Gateway                    |
@@ -60,7 +60,7 @@ This diagram illustrates the **AWS network architecture** of the `iot-collector-
 
 # Security
 
-## Security Notes
+### Security Notes
 
 - Private and database subnets have **no public IPs**.
 - NAT Gateway allows outbound internet access from private subnets.
@@ -70,32 +70,32 @@ This diagram illustrates the **AWS network architecture** of the `iot-collector-
 
 Our current cloud-native infrastructure for the IoT data platform demonstrates a strong security posture built on several best practices across networking, identity, data handling, and containerization. Below is a summary of the key components:
 
-## Network Security
+### Network Security
 - VPC Architecture isstructured with public, private, and database subnet separation. EKS nodes are shielded in private subnets; databases are further isolated.
 - Security Groups follow the principle of least privilege, with tight ingress rules and specific allowances (e.g., only EKS nodes can access PostgreSQL on port 5432).
 - Routing and Access are controlled via NAT Gateways and Internet Gateways properly restricted to public subnets, ensuring secure outbound traffic from private environments.
 
-## Identity & Access Management
+### Identity & Access Management
 - IAM Roles are scoped with minimal privileges — both cluster and node roles use necessary AWS-managed policies.
 - Kubernetes-AWS integration is securely configured through IAM authentication, preventing unauthorized cross-service access.
 
-## Data & Secrets Security
+### Data & Secrets Security
 - RDS Databases are located in private subnets, with encrypted connections enabled, daily backups configured.
 - IoT Security is implemented via certificate-based device authentication and strict MQTT topic permissions.
 
-## Container Security
+### Container Security
 - Minimal Base Images (`python:3.9-slim`, `node:18-alpine`) reduce the attack surface.
 - Image Scanning is enabled in ECR.
 - Readiness Probes & Health Checks are configured for API Gateway and MQTT services.
 - Metrics endpoints and `/health` checks support observability and uptime monitoring.
 - Mqtt certificates are stored in k8s certificates.
 
-## Infrastructure & State Management
+### Infrastructure & State Management
 - Terraform State is secured in encrypted S3 buckets with locking via DynamoDB to prevent drift or accidental changes.
 - Certificates & Secrets are managed as Kubernetes Secrets and mounted securely in containers as read-only volumes.
 
 
-## Monitoring and Observability
+### Monitoring and Observability
 
 
 # Monitoring
@@ -111,12 +111,12 @@ Our current cloud-native infrastructure for the IoT data platform demonstrates a
 # AWS cost estimates
 
 
-## Assumptions for Using AWS Infrastructure
+### Assumptions for Using AWS Infrastructure
 - **AWS IoT Core**: Connects 5 devices sending small messages (0.5 KB) every 5 minutes.  
 - **ECR**: Stores our Docker images for easy deployment.  
 ---
 
-## Estimated Traffic (Per Month)
+### Estimated Traffic (Per Month)
 - **IoT → AWS**: ~22 MB  
 - **Internal forwarding (IoT → MQTT → DB)**: ~75 MB  
 - **User API calls**: ~4 MB  
@@ -124,7 +124,7 @@ The setup is low-cost, scalable, and ready for real-world testing.
 
 ---
 
-## Monthly Cost Breakdown (USD)
+### Monthly Cost Breakdown (USD)
 
 | **Component**                  | **Estimated Monthly Cost (USD)** | **Notes**                                                  |
 |-------------------------------|----------------------------------|------------------------------------------------------------|
@@ -145,7 +145,7 @@ The setup is low-cost, scalable, and ready for real-world testing.
 
 ---
 
-## Optimized AWS Architecture Proposal
+### Optimized AWS Architecture Proposal
 For a **small-scale IoT development or test environment**, you can significantly reduce costs with these changes:
 - **Replace EKS** with **ECS Fargate**, which is easier to manage and **much cheaper** for small workloads.  
 - Use only **one t3.small EC2 instance** (or even t3.micro) for any compute needs, instead of two t3.mediums.  
