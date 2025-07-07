@@ -97,7 +97,42 @@ TODO
 
 # Monitoring and Observability
 
-TODO
+## System Overview
+
+The system monitors telemetry data from IoT devices (temperature and humidity sensors), which publish messages to AWS IoT Core via MQTT on the topic `sdk/test/python`.
+
+The data is visualized in Grafana.
+
+---
+
+## Dashboard Metrics
+
+![Dashboard Metrics](./docs/dashboard.png)
+
+
+### 1. MQTT Message Rate
+- Number of messages per second (topic: `sdk/test/python`)
+
+### 2. Device Temperature
+- Temperature readings from devices `my1`–`my4` (in °C)
+
+### 3. Device Humidity
+- Humidity readings from devices (in %)
+
+### 4. Salmon Stress Index (custom metric)
+- Calculated based on temperature and humidity
+- Range: `0.0–1.0`
+- Example formula:
+  ```
+  stress = 0.3 + 0.02 * (temp - 24) + 0.01 * (humidity - 40)
+  ```
+
+---
+
+### Device Simulation
+
+The `pub.sh` script simulates 4 devices (`my1`–`my4`) sending randomized data every second for 45 seconds.
+
 
 # AWS cost estimates
 
