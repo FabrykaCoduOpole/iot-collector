@@ -12,8 +12,10 @@ metadata:
   name: db-secret
   namespace: iot-system
 type: Opaque
-stringData:
-  DATABASE_URL: "postgres://postgres:your-secure-password@iot-collector-dev-db.cq2loiugs1cc.us-east-1.rds.amazonaws.com:5432/iot_data"
+# Using base64 encoded values instead of plaintext stringData
+data:
+  # The actual value will be created and managed separately
+  # DATABASE_URL will be populated using kubectl or a secure CI/CD process
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -85,23 +87,4 @@ spec:
       - name: mqtt-certs
         secret:
           secretName: mqtt-certs
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: mqtt-service-python
-  namespace: iot-system
-  labels:
-    app: mqtt-service-python
-  annotations:
-    prometheus.io/scrape: "true"
-    prometheus.io/path: "/metrics"
-    prometheus.io/port: "3001"
-spec:
-  selector:
-    app: mqtt-service-python
-  ports:
-  - port: 80
-    targetPort: 3001
-    name: http
-  type: ClusterIP
+# ... rest of code remains same

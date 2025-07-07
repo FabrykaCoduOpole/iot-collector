@@ -17,3 +17,6 @@ AWSCLIV2.pkg
 mqtt-service-python/.venv
 mqtt-service-python/certs
 readforme.me
+
+terraform.tfvars
+infrastructure/terraform/environments/dev/terraform.tfvars
