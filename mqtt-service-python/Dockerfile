@@ -11,11 +11,13 @@ RUN mkdir -p /app/certs
 
 ENV PORT=3001
 ENV PYTHONUNBUFFERED=1
+# Remove hardcoded endpoint - will be provided at runtime
+ENV AWS_IOT_ENDPOINT=""
 
 EXPOSE 3001
 
 CMD python sub.py \
-    --endpoint a2s082f26l8xct-ats.iot.us-east-1.amazonaws.com \
+    --endpoint ${AWS_IOT_ENDPOINT} \
     --ca_file /app/certs/root-CA.crt \
     --cert /app/certs/certificate.pem.crt \
     --key /app/certs/private.pem.key \

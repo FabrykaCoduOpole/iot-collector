@@ -88,13 +88,12 @@ Our current cloud-native infrastructure for the IoT data platform demonstrates a
 - Image Scanning is enabled in ECR.
 - Readiness Probes & Health Checks are configured for API Gateway and MQTT services.
 - Metrics endpoints and `/health` checks support observability and uptime monitoring.
+- Mqtt certificates are stored in k8s certificates.
 
 ## Infrastructure & State Management
 - Terraform State is secured in encrypted S3 buckets with locking via DynamoDB to prevent drift or accidental changes.
 - Certificates & Secrets are managed as Kubernetes Secrets and mounted securely in containers as read-only volumes.
 
-
-## Security Considerations
 
 
 
