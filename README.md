@@ -54,12 +54,6 @@ This diagram illustrates the **AWS network architecture** of the `iot-collector-
 - Port: `5432`
 - Secured to allow access only from EKS nodes
 
-
-# Step-by-step deployment guide
-
-TODO
-
-
 # Security
 
 ### Security Notes
@@ -96,6 +90,10 @@ Our current cloud-native infrastructure for the IoT data platform demonstrates a
 - Terraform State is secured in encrypted S3 buckets with locking via DynamoDB to prevent drift or accidental changes.
 - Certificates & Secrets are managed as Kubernetes Secrets and mounted securely in containers as read-only volumes.
 
+
+# Step-by-step deployment guide
+
+TODO
 
 # Monitoring and Observability
 
