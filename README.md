@@ -18,7 +18,7 @@ This diagram illustrates the **AWS network architecture** of the `iot-collector-
   - `us-east-1b`
 ---
 
-### 🌐 Subnets & NAT
+### Subnets & NAT
 | Subnet Name                  | CIDR Block     | AZ         | Purpose                        |
 |-----------------------------|----------------|------------|--------------------------------|
 | `iot-collector-dev-public-1`  | `10.0.0.0/24`   | us-east-1a | NAT Gateway                    |
@@ -32,7 +32,6 @@ This diagram illustrates the **AWS network architecture** of the `iot-collector-
 
 ---
 
-##  Key Components
 ### AWS IoT Core
 - Receives messages from IoT devices
 - Subscribed topic:  
@@ -57,6 +56,9 @@ This diagram illustrates the **AWS network architecture** of the `iot-collector-
 
 
 # Step-by-step deployment guide
+
+TODO
+
 
 # Security
 
@@ -95,18 +97,9 @@ Our current cloud-native infrastructure for the IoT data platform demonstrates a
 - Certificates & Secrets are managed as Kubernetes Secrets and mounted securely in containers as read-only volumes.
 
 
-### Monitoring and Observability
+# Monitoring and Observability
 
-
-# Monitoring
-
-- **Metrics Collection**: All services expose metrics via `/metrics` endpoint
-- **Prometheus**: Scrapes metrics from services
-- **Grafana Dashboards**:
-  - MQTT message rate
-  - Database write operations
-  - System resource utilization
-  - API response times
+TODO
 
 # AWS cost estimates
 
