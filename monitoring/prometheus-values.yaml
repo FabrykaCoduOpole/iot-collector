@@ -1,0 +1,24 @@
+server:
+  persistentVolume:
+    enabled: false
+  service:
+    type: ClusterIP
+
+alertmanager:
+  persistentVolume:
+    enabled: false
+  service:
+    type: ClusterIP
+
+serviceAccounts:
+  server:
+    create: true
+    annotations:
+      eks.amazonaws.com/role-arn: arn:aws:iam::997820552516:role/iot-collector-dev-prometheus-role
+
+prometheus-node-exporter:
+  hostRootFsMount:
+    enabled: true
+
+kube-state-metrics:
+  enabled: true

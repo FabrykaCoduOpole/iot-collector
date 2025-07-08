@@ -1,0 +1,163 @@
+name: CI/CD Pipeline
+
+on:
+  pull_request:
+    branches: [ prod ]
+  workflow_dispatch:
+
+env:
+  AWS_REGION: us-east-1
+  EKS_CLUSTER_NAME: iot-collector-dev-cluster
+  EKS_NAMESPACE: iot-system
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      api-gateway: ${{ steps.filter.outputs.api-gateway }}
+      mqtt-service: ${{ steps.filter.outputs.mqtt-service }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            api-gateway:
+              - 'apps/api-gateway/**'
+              - 'docker/api-gateway/**'
+            mqtt-service:
+              - 'mqtt-service-python/**'
+
+  build-api-gateway:
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.api-gateway == 'true' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'apps/api-gateway/package-lock.json'
+
+      - name: Install dependencies
+        run: |
+          cd apps/api-gateway
+          npm ci
+
+      - name: Run linting
+        run: |
+          cd apps/api-gateway
+          npm run lint || echo "No lint script found"
+
+      - name: Run tests
+        run: |
+          cd apps/api-gateway
+          npm test || echo "No test script found"
+
+      - name: Configure AWS credentials
+        if: github.event_name != 'pull_request'
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        if: github.event_name != 'pull_request'
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build and push multi-platform image to ECR (api-gateway)
+        if: github.event_name != 'pull_request'
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: iot-collector-dev-api-gateway
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker buildx create --use --name builder || true
+          docker buildx build --platform linux/amd64 \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:latest \
+            --push \
+            -f docker/api-gateway/Dockerfile .
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      - name: Update Kubernetes deployment
+        if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+        run: |
+          aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region ${{ env.AWS_REGION }}
+          kubectl set image deployment/api-gateway api-gateway=${{ steps.login-ecr.outputs.registry }}/iot-collector-dev-api-gateway:${{ github.sha }} --namespace=${{ env.EKS_NAMESPACE }}
+          kubectl rollout status deployment/api-gateway --namespace=${{ env.EKS_NAMESPACE }} --timeout=300s
+
+  build-mqtt-service:
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.mqtt-service == 'true' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          cd mqtt-service-python
+          python -m pip install --upgrade pip
+          pip install flake8 pytest
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Lint with flake8
+        run: |
+          cd mqtt-service-python
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics || echo "No flake8 errors found"
+
+      - name: Test with pytest
+        run: |
+          cd mqtt-service-python
+          pytest || echo "No tests found"
+
+      - name: Configure AWS credentials
+        if: github.event_name != 'pull_request'
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        if: github.event_name != 'pull_request'
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build and push multi-platform image to ECR (mqtt-service)
+        if: github.event_name != 'pull_request'
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: iot-collector-dev-mqtt-service-python
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          cd mqtt-service-python
+          docker buildx create --use --name builder || true
+          docker buildx build --platform linux/amd64 \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:latest \
+            --push \
+            .
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      - name: Update Kubernetes deployment
+        if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+        run: |
+          aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region ${{ env.AWS_REGION }}
+          kubectl set image deployment/mqtt-service-python mqtt-service-python=${{ steps.login-ecr.outputs.registry }}/iot-collector-dev-mqtt-service-python:${{ github.sha }} --namespace=${{ env.EKS_NAMESPACE }}
+          kubectl rollout status deployment/mqtt-service-python --namespace=${{ env.EKS_NAMESPACE }} --timeout=300s

@@ -1,0 +1,5 @@
+awsiotsdk
+psycopg2-binary
+flask
+prometheus-client
+python-dotenv
